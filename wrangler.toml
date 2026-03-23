@@ -1,0 +1,11 @@
+name = "pixelholiday-os"
+main = "src/index.ts"
+compatibility_date = "2024-10-01"
+
+[env.production]
+name = "pixelholiday-os-prod"
+vars = { ENVIRONMENT = "production" }
+
+[env.staging]
+name = "pixelholiday-os-staging"
+vars = { ENVIRONMENT = "staging" }
