@@ -1,0 +1,2 @@
+// vitest config
+export default {};
