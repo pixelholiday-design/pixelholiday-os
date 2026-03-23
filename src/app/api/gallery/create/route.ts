@@ -1,3 +1,6 @@
-// src/app/api/gallery/create/route.ts
 export const runtime = "edge";
-export { POST } from "./handlers";
+import { NextRequest } from "next/server";
+
+export async function POST(_req: NextRequest) {
+  return Response.json({ ok: true }, { status: 200 });
+}
