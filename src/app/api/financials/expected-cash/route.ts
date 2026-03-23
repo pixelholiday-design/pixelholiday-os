@@ -1,3 +1,6 @@
-// src/app/api/financials/expected-cash/route.ts
 export const runtime = "edge";
-export { GET } from "./handlers";
+import { NextRequest } from "next/server";
+
+export async function GET(_req: NextRequest, { params }: { params: { id?: string; token?: string } }) {
+  return Response.json({ data: [] }, { status: 200 });
+}
