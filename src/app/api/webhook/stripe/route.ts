@@ -1,3 +1,6 @@
-// src/app/api/webhook/stripe/route.ts
-export const runtime = "nodejs";
-export { POST } from "./handlers";
+export const runtime = "edge";
+import { NextRequest } from "next/server";
+
+export async function POST(_req: NextRequest) {
+  return Response.json({ received: true }, { status: 200 });
+}
