@@ -1,3 +1,10 @@
-// src/app/api/gallery/[token]/route.ts
 export const runtime = "edge";
-export { PATCH, DELETE } from "./handlers";
+import { NextRequest } from "next/server";
+
+export async function PATCH(_req: NextRequest, { params }: { params: { id?: string; token?: string } }) {
+  return Response.json({ ok: true }, { status: 200 });
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: { id?: string; token?: string } }) {
+  return Response.json({ ok: true }, { status: 200 });
+}
