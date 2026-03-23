@@ -1,3 +1,10 @@
-// src/app/api/ats/postings/route.ts
 export const runtime = "edge";
-export { GET, POST } from "./handlers";
+import { NextRequest } from "next/server";
+
+export async function GET(_req: NextRequest, { params }: { params: { id?: string; token?: string } }) {
+  return Response.json({ data: [] }, { status: 200 });
+}
+
+export async function POST(_req: NextRequest) {
+  return Response.json({ ok: true }, { status: 200 });
+}
