@@ -1,3 +1,3 @@
-"use client";
-export const runtime = "edge";
-export { default } from "./UploadClient";
+export default function Page() {
+  return <div><h1>Upload</h1><p>Coming soon.</p></div>;
+}
