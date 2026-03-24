@@ -1,3 +1,3 @@
-// src/app/blog/page.tsx
-export const runtime = "edge";
-export { default } from "./BlogClient";
+export default function Page() {
+  return <div><h1>Blog</h1><p>Coming soon.</p></div>;
+}
