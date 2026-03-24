@@ -1,3 +1,3 @@
-// src/app/book/page.tsx
-export const runtime = "edge";
-export { default, metadata } from "./BookClient";
+export default function Page() {
+  return <div><h1>Book</h1><p>Coming soon.</p></div>;
+}
