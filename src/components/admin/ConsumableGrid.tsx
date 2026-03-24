@@ -1,2 +1,4 @@
 "use client";
-export { ConsumableGrid } from "./ConsumableGridClient";
+export function ConsumableGrid() {
+  return <div><p>Consumable grid coming soon.</p></div>;
+}
