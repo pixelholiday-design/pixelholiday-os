@@ -90,7 +90,7 @@ export function toast(input: ToastInput) {
 
   const duration = input.duration ?? TOAST_TIMEOUT;
   if (duration !== Infinity) {
-    setTimeout(d)smiss, duration);
+    setTimeout(dismiss, duration);
   }
 
   return { id, dismiss, update: (props: Partial<ToastInput>) =>
