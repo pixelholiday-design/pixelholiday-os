@@ -1,3 +1,3 @@
-// src/app/(supervisor)/supervisor/dispatch/page.tsx
-export const runtime = "edge";
-export { default } from "./DispatchClient";
+export default function Page() {
+  return <div><h1>Dispatch</h1><p>Coming soon.</p></div>;
+}
