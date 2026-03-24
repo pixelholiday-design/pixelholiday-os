@@ -1,2 +1,4 @@
 "use client";
-export { ExpenseTable } from "./ExpenseTableClient";
+export function ExpenseTable() {
+  return <div><p>Expense table coming soon.</p></div>;
+}
