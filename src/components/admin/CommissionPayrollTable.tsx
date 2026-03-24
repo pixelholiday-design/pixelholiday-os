@@ -1,2 +1,4 @@
 "use client";
-export { CommissionPayrollTable } from "./CommissionPayrollTableClient";
+export function CommissionPayrollTable() {
+  return <div><p>Commission payroll table coming soon.</p></div>;
+}
