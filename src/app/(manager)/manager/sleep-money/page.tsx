@@ -1,3 +1,3 @@
-// src/app/(manager)/manager/sleep-money/page.tsx
-export const runtime = "edge";
-export { default } from "./SleepMoneyClient";
+export default function Page() {
+  return <div><h1>Sleep Money</h1><p>Coming soon.</p></div>;
+}
