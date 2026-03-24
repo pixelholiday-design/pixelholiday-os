@@ -1,2 +1,4 @@
 "use client";
-export { default } from "./BookingInquiryFormClient";
+export default function BookingInquiryForm() {
+  return <div><p>Booking inquiry form coming soon.</p></div>;
+}
