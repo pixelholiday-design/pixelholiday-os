@@ -1,3 +1,4 @@
+export const runtime = "edge";
 // Monthly close cron
 export async function POST(req: Request) {
   // Run monthly close
