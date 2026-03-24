@@ -1,3 +1,3 @@
-// src/app/(staff)/staff/commissions/page.tsx
-export const runtime = "edge";
-export { default } from "./CommissionsClient";
+export default function Page() {
+  return <div><h1>Commissions</h1><p>Coming soon.</p></div>;
+}
