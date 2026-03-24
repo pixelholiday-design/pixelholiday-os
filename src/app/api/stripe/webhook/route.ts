@@ -1,3 +1,4 @@
+export const runtime = "edge";
 // Stripe webhook handler
 export async function POST(req: Request) {
   const event = await req.json();
