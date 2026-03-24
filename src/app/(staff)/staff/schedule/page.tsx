@@ -1,3 +1,3 @@
-// src/app/(staff)/staff/schedule/page.tsx
-export const runtime = "edge";
-export { default } from "./ScheduleClient";
+export default function Page() {
+  return <div><h1>Schedule</h1><p>Coming soon.</p></div>;
+}
