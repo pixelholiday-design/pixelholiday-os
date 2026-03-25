@@ -4,74 +4,93 @@ import { redirect } from 'next/navigation';
 
 const ADMIN_ROLES = ['admin', 'CEO', 'MANAGER'];
 
-const mockBookings = [
-  { id: 'BK-001', guest: 'James Wilson', hotel: 'Grand Riviera Resort', room: 'Suite 401', checkIn: '2026-03-25', checkOut: '2026-03-29', nights: 4, status: 'Confirmed', total: '$1,240' },
-  { id: 'BK-002', guest: 'Sofia Martinez', hotel: 'Azure Beach Club', room: 'Deluxe 205', checkIn: '2026-03-26', checkOut: '2026-03-28', nights: 2, status: 'Pending', total: '$480' },
-  { id: 'BK-003', guest: 'Chen Wei', hotel: 'Mountain Zen Lodge', room: 'Standard 112', checkIn: '2026-03-28', checkOut: '2026-04-02', nights: 5, status: 'Confirmed', total: '$950' },
-  { id: 'BK-004', guest: 'Amara Okafor', hotel: 'Grand Riviera Resort', room: 'Ocean View 310', checkIn: '2026-03-30', checkOut: '2026-04-01', nights: 2, status: 'Cancelled', total: '$680' },
-  { id: 'BK-005', guest: 'Luca Ferrari', hotel: 'Azure Beach Club', room: 'Suite 501', checkIn: '2026-04-01', checkOut: '2026-04-05', nights: 4, status: 'Confirmed', total: '$1,600' },
-  { id: 'BK-006', guest: 'Emma Thompson', hotel: 'Mountain Zen Lodge', room: 'Deluxe 220', checkIn: '2026-04-03', checkOut: '2026-04-06', nights: 3, status: 'Pending', total: '$570' },
-  ];
-
-const statusColors: Record<string, string> = {
-    Confirmed: 'bg-green-500/20 text-green-400 border border-green-500/30',
-    Pending: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
-    Cancelled: 'bg-red-500/20 text-red-400 border border-red-500/30',
+const mockBooking = {
+  id: 'BK-2401', guest: 'Luca Ferrari', email: 'luca@email.it',
+  hotel: 'Villa Serena', room: 'Suite 201',
+  checkIn: '2025-04-01', checkOut: '2025-04-07', nights: 6,
+  status: 'Confirmed', total: '€2,400', source: 'Direct',
+  notes: 'VIP guest — early check-in requested.',
+  adults: 2, children: 0, specialRequests: 'Sea view room preferred'
 };
 
 export default async function BookingPage() {
-    const session = await auth();
-    if (!session?.user) redirect('/login');
-    const userRole = (session.user as any)?.role;
-    if (!ADMIN_ROLES.includes(userRole)) redirect('/dashboard');
-    return (
-          <div className="p-8">
-                <div className="mb-8 flex items-center justify-between">
-                        <div>
-                                  <h1 className="text-2xl font-bold text-white">Booking Management</h1>h1>
-                                  <p className="text-gray-400 mt-1">Manage all hotel reservations</p>p>
-                        </div>div>
-                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium">+ New Booking</button>button>
-                </div>div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                  {[{label:'Total Bookings',value:'1,284',sub:'+12% this month'},{label:'Active Stays',value:'89',sub:'guests checked in'},{label:'Pending Approval',value:'23',sub:'awaiting confirmation'},{label:'Revenue (Month)',value:'$84,290',sub:'+18% vs last month'}].map((kpi) => (
-                      <div key={kpi.label} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                                  <p className="text-gray-400 text-sm">{kpi.label}</p>p>
-                                  <p className="text-3xl font-bold text-white mt-2">{kpi.value}</p>p>
-                                  <p className="text-gray-500 text-xs mt-1">{kpi.sub}</p>p>
-                      </div>div>
-                    ))}
-                </div>div>
-                <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                        <div className="p-6 border-b border-gray-700">
-                                  <h2 className="text-white font-semibold">Recent Bookings</h2>h2>
-                        </div>div>
-                        <div className="overflow-x-auto">
-                                  <table className="w-full">
-                                              <thead><tr className="border-b border-gray-700">
-                                                {['Booking ID','Guest','Hotel','Room','Check-in','Check-out','Nights','Total','Status',''].map(h => (
-                            <th key={h} className="text-left text-gray-400 text-xs font-medium uppercase px-6 py-3">{h}</th>th>
-                          ))}
-                                              </tr>tr></thead>thead>
-                                              <tbody className="divide-y divide-gray-700">
-                                                {mockBookings.map((b) => (
-                            <tr key={b.id} className="hover:bg-gray-700/50">
-                                              <td className="px-6 py-4 text-indigo-400 text-sm font-mono">{b.id}</td>td>
-                                              <td className="px-6 py-4 text-white text-sm">{b.guest}</td>td>
-                                              <td className="px-6 py-4 text-gray-300 text-sm">{b.hotel}</td>td>
-                                              <td className="px-6 py-4 text-gray-300 text-sm">{b.room}</td>td>
-                                              <td className="px-6 py-4 text-gray-400 text-sm">{b.checkIn}</td>td>
-                                              <td className="px-6 py-4 text-gray-400 text-sm">{b.checkOut}</td>td>
-                                              <td className="px-6 py-4 text-gray-400 text-sm">{b.nights}</td>td>
-                                              <td className="px-6 py-4 text-green-400 text-sm">{b.total}</td>td>
-                                              <td className="px-6 py-4"><span className={`px-2 py-1 rounded-full text-xs ${statusColors[b.status]}`}>{b.status}</span>span></td>td>
-                                              <td className="px-6 py-4"><button className="text-indigo-400 text-sm">View</button>button></td>td>
-                            </tr>tr>
-                          ))}
-                                              </tbody>tbody>
-                                  </table>table>
-                        </div>div>
-                </div>div>
-          </div>div>
-        );
-}</div>
+  const session = await auth();
+  if (!session?.user) redirect('/login');
+  const userRole = (session.user as { role?: string }).role ?? '';
+  if (!ADMIN_ROLES.includes(userRole)) redirect('/admin');
+  const b = mockBooking;
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <a href="/admin/bookings" className="text-sm text-blue-600 hover:underline">
+            Back to Bookings
+          </a>
+          <h1 className="text-xl font-bold text-gray-900">Booking {b.id}</h1>
+        </div>
+        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+          {b.status}
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="font-semibold text-gray-800 border-b pb-2 mb-4">Guest</h2>
+          <dl className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Name</dt>
+              <dd className="font-medium text-gray-900">{b.guest}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Email</dt>
+              <dd className="font-medium text-gray-900">{b.email}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Adults</dt>
+              <dd className="font-medium text-gray-900">{b.adults}</dd>
+            </div>
+          </dl>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <h2 className="font-semibold text-gray-800 border-b pb-2 mb-4">Stay</h2>
+          <dl className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Hotel</dt>
+              <dd className="font-medium text-gray-900">{b.hotel}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Room</dt>
+              <dd className="font-medium text-gray-900">{b.room}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Check In</dt>
+              <dd className="font-medium text-gray-900">{b.checkIn}</dd>
+            </div>
+            <div className="flex justify-between text-sm">
+              <dt className="text-gray-500">Check Out</dt>
+              <dd className="font-medium text-gray-900">{b.checkOut}</dd>
+            </div>
+            <div className="flex justify-between text-sm border-t pt-2">
+              <dt className="font-medium text-gray-700">Total</dt>
+              <dd className="font-bold text-gray-900">{b.total}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <h2 className="font-semibold text-gray-800 mb-2">Special Requests</h2>
+        <p className="text-sm text-gray-600">{b.specialRequests}</p>
+      </div>
+      <div className="flex gap-3">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+          Edit Booking
+        </button>
+        <button className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">
+          Check In
+        </button>
+        <button className="border border-red-300 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
