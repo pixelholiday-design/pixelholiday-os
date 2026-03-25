@@ -4,100 +4,122 @@ import { redirect } from 'next/navigation';
 
 const ADMIN_ROLES = ['admin', 'CEO', 'MANAGER'];
 
-const mockInventory = [
-  { id: 'INV-001', property: 'Grand Riviera Resort', room: 'Suite 401', type: 'Suite', status: 'Available', floor: 4, capacity: 4, nightly: '$310', lastCleaned: '2026-03-24' },
-  { id: 'INV-002', property: 'Grand Riviera Resort', room: 'Ocean View 310', type: 'Deluxe', status: 'Occupied', floor: 3, capacity: 2, nightly: '$240', lastCleaned: '2026-03-22' },
-  { id: 'INV-003', property: 'Azure Beach Club', room: 'Deluxe 205', type: 'Deluxe', status: 'Maintenance', floor: 2, capacity: 2, nightly: '$190', lastCleaned: '2026-03-20' },
-  { id: 'INV-004', property: 'Azure Beach Club', room: 'Suite 501', type: 'Suite', status: 'Available', floor: 5, capacity: 6, nightly: '$420', lastCleaned: '2026-03-24' },
-  { id: 'INV-005', property: 'Mountain Zen Lodge', room: 'Standard 112', type: 'Standard', status: 'Occupied', floor: 1, capacity: 2, nightly: '$140', lastCleaned: '2026-03-23' },
-  { id: 'INV-006', property: 'Mountain Zen Lodge', room: 'Deluxe 220', type: 'Deluxe', status: 'Available', floor: 2, capacity: 3, nightly: '$185', lastCleaned: '2026-03-24' },
-  { id: 'INV-007', property: 'Grand Riviera Resort', room: 'Standard 101', type: 'Standard', status: 'Available', floor: 1, capacity: 2, nightly: '$160', lastCleaned: '2026-03-24' },
-  { id: 'INV-008', property: 'Azure Beach Club', room: 'Penthouse 601', type: 'Penthouse', status: 'Reserved', floor: 6, capacity: 8, nightly: '$750', lastCleaned: '2026-03-23' },
-  ];
+const mockItems = [
+  { id: 'INV-001', name: 'Canon EOS R5', category: 'Camera', sku: 'CAM-R5-001', qty: 4, available: 3, condition: 'Excellent', location: 'Studio A', value: 3899 },
+  { id: 'INV-002', name: 'Sony A7 IV', category: 'Camera', sku: 'CAM-A7-002', qty: 6, available: 5, condition: 'Good', location: 'Studio B', value: 2498 },
+  { id: 'INV-003', name: 'Godox SL-200W', category: 'Lighting', sku: 'LGT-GDX-003', qty: 10, available: 8, condition: 'Good', location: 'Lighting Room', value: 299 },
+  { id: 'INV-004', name: 'Profoto B10 Plus', category: 'Lighting', sku: 'LGT-PRF-004', qty: 6, available: 4, condition: 'Excellent', location: 'Studio A', value: 1995 },
+  { id: 'INV-005', name: 'DJI Ronin 4D', category: 'Gimbal', sku: 'GIM-DJI-005', qty: 2, available: 1, condition: 'Excellent', location: 'Cage', value: 7399 },
+  { id: 'INV-006', name: 'Canon 24-70mm f/2.8', category: 'Lens', sku: 'LNS-CAN-006', qty: 3, available: 3, condition: 'Good', location: 'Lens Cabinet', value: 2099 },
+  { id: 'INV-007', name: 'Sony 85mm f/1.4 GM', category: 'Lens', sku: 'LNS-SNY-007', qty: 2, available: 2, condition: 'Excellent', location: 'Lens Cabinet', value: 1798 },
+  { id: 'INV-008', name: 'Manfrotto 055 Tripod', category: 'Support', sku: 'SUP-MAN-008', qty: 8, available: 6, condition: 'Good', location: 'Equipment Room', value: 349 },
+  { id: 'INV-009', name: 'SanDisk 256GB CFexpress', category: 'Media', sku: 'MED-SDK-009', qty: 20, available: 15, condition: 'Good', location: 'Media Cabinet', value: 189 },
+  { id: 'INV-010', name: 'Westcott 7ft Umbrella', category: 'Lighting', sku: 'LGT-WST-010', qty: 12, available: 10, condition: 'Fair', location: 'Lighting Room', value: 79 },
+];
 
-const statusColors: Record<string, string> = {
-    Available: 'bg-green-500/20 text-green-400 border border-green-500/30',
-    Occupied: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-    Maintenance: 'bg-red-500/20 text-red-400 border border-red-500/30',
-    Reserved: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+const conditionColor: Record<string, string> = {
+  Excellent: 'bg-green-100 text-green-800',
+  Good: 'bg-blue-100 text-blue-800',
+  Fair: 'bg-yellow-100 text-yellow-800',
+  Poor: 'bg-red-100 text-red-800',
 };
 
-export default async function InventoryPage() {
-    const session = await auth();
-    if (!session?.user) redirect('/login');
-    const userRole = (session.user as any)?.role;
-    if (!ADMIN_ROLES.includes(userRole)) redirect('/dashboard');
+const categories = Array.from(new Set(mockItems.map(i => i.category)));
+const totalValue = mockItems.reduce((sum, i) => sum + i.value * i.qty, 0);
+const totalItems = mockItems.reduce((sum, i) => sum + i.qty, 0);
+const availableItems = mockItems.reduce((sum, i) => sum + i.available, 0);
 
-  const available = mockInventory.filter(r => r.status === 'Available').length;
-    const occupied = mockInventory.filter(r => r.status === 'Occupied').length;
-    const maintenance = mockInventory.filter(r => r.status === 'Maintenance').length;
-    const reserved = mockInventory.filter(r => r.status === 'Reserved').length;
+export default async function InventoryPage() {
+  const session = await auth();
+  if (!session?.user) redirect('/login');
+  if (!ADMIN_ROLES.includes((session.user as { role?: string }).role ?? '')) {
+    redirect('/admin');
+  }
 
   return (
-        <div className="p-8">
-              <div className="mb-8 flex items-center justify-between">
-                      <div>
-                                <h1 className="text-2xl font-bold text-white">Inventory</h1>h1>
-                                <p className="text-gray-400 mt-1">Room &amp; property inventory management</p>p>
-                      </div>div>
-                      <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                                + Add Room
-                      </button>button>
-              </div>div>
-        
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                {[
-          { label: 'Available', value: available, color: 'text-green-400' },
-          { label: 'Occupied', value: occupied, color: 'text-blue-400' },
-          { label: 'Reserved', value: reserved, color: 'text-yellow-400' },
-          { label: 'Maintenance', value: maintenance, color: 'text-red-400' },
-                  ].map((kpi) => (
-                              <div key={kpi.label} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                                          <p className="text-gray-400 text-sm">{kpi.label}</p>p>
-                                          <p className={`text-3xl font-bold mt-2 ${kpi.color}`}>{kpi.value}</p>p>
-                                          <p className="text-gray-500 text-xs mt-1">of {mockInventory.length} total rooms</p>p>
-                              </div>div>
-                            ))}
-              </div>div>
-        
-              <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                      <div className="p-6 border-b border-gray-700">
-                                <h2 className="text-white font-semibold">Room Inventory</h2>h2>
-                      </div>div>
-                      <div className="overflow-x-auto">
-                                <table className="w-full">
-                                            <thead>
-                                                          <tr className="border-b border-gray-700">
-                                                            {['ID', 'Property', 'Room', 'Type', 'Floor', 'Capacity', 'Nightly Rate', 'Last Cleaned', 'Status', 'Actions'].map(h => (
-                            <th key={h} className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-3">{h}</th>th>
-                          ))}
-                                                          </tr>tr>
-                                            </thead>thead>
-                                            <tbody className="divide-y divide-gray-700">
-                                              {mockInventory.map((room) => (
-                          <tr key={room.id} className="hover:bg-gray-700/50 transition-colors">
-                                            <td className="px-6 py-4 text-gray-400 text-sm font-mono">{room.id}</td>td>
-                                            <td className="px-6 py-4 text-white text-sm">{room.property}</td>td>
-                                            <td className="px-6 py-4 text-white text-sm font-medium">{room.room}</td>td>
-                                            <td className="px-6 py-4 text-gray-300 text-sm">{room.type}</td>td>
-                                            <td className="px-6 py-4 text-gray-300 text-sm">{room.floor}</td>td>
-                                            <td className="px-6 py-4 text-gray-300 text-sm">{room.capacity} guests</td>td>
-                                            <td className="px-6 py-4 text-green-400 text-sm font-medium">{room.nightly}</td>td>
-                                            <td className="px-6 py-4 text-gray-400 text-sm">{room.lastCleaned}</td>td>
-                                            <td className="px-6 py-4">
-                                                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[room.status]}`}>
-                                                                  {room.status}
-                                                                </span>span>
-                                            </td>td>
-                                            <td className="px-6 py-4">
-                                                                <button className="text-indigo-400 hover:text-indigo-300 text-sm transition-colors">Edit</button>button>
-                                            </td>td>
-                          </tr>tr>
-                        ))}
-                                            </tbody>tbody>
-                                </table>table>
-                      </div>div>
-              </div>div>
-        </div>div>
-      );
-}</div>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
+          <p className="text-sm text-gray-500 mt-1">Track equipment, gear, and consumables</p>
+        </div>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+          + Add Item
+        </button>
+      </div>
+
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl border p-4">
+          <p className="text-sm text-gray-500">Total SKUs</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{mockItems.length}</p>
+        </div>
+        <div className="bg-white rounded-xl border p-4">
+          <p className="text-sm text-gray-500">Total Units</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{totalItems}</p>
+        </div>
+        <div className="bg-white rounded-xl border p-4">
+          <p className="text-sm text-gray-500">Available</p>
+          <p className="text-2xl font-bold text-green-600 mt-1">{availableItems}</p>
+        </div>
+        <div className="bg-white rounded-xl border p-4">
+          <p className="text-sm text-gray-500">Total Value</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">${totalValue.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 flex-wrap">
+        {['All', ...categories].map(cat => (
+          <span key={cat} className="px-3 py-1 rounded-full text-sm border bg-white text-gray-700 cursor-pointer hover:bg-gray-50">
+            {cat}
+          </span>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b">
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Item</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">SKU</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Category</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Qty</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Available</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Condition</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Location</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">Unit Value</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {mockItems.map(item => (
+              <tr key={item.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3">
+                  <div className="font-medium text-gray-900">{item.name}</div>
+                  <div className="text-xs text-gray-400">{item.id}</div>
+                </td>
+                <td className="px-4 py-3 text-gray-600 font-mono text-xs">{item.sku}</td>
+                <td className="px-4 py-3 text-gray-600">{item.category}</td>
+                <td className="px-4 py-3 text-gray-900 font-medium">{item.qty}</td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    item.available === 0 ? 'bg-red-100 text-red-700' :
+                    item.available < item.qty ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    {item.available}/{item.qty}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${conditionColor[item.condition] ?? 'bg-gray-100 text-gray-700'}`}>
+                    {item.condition}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-gray-600">{item.location}</td>
+                <td className="px-4 py-3 text-gray-900">${item.value.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
