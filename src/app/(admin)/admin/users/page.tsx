@@ -5,103 +5,129 @@ import { redirect } from 'next/navigation';
 const ADMIN_ROLES = ['admin', 'CEO', 'MANAGER'];
 
 const mockUsers = [
-  { id: 'USR-001', name: 'Alexandra Chen', email: 'a.chen@pixelholiday.com', role: 'CEO', status: 'Active', joined: '2023-01-15', lastLogin: '2026-03-24', bookings: 0 },
-  { id: 'USR-002', name: 'Marcus Williams', email: 'm.williams@pixelholiday.com', role: 'MANAGER', status: 'Active', joined: '2023-03-08', lastLogin: '2026-03-24', bookings: 0 },
-  { id: 'USR-003', name: 'James Wilson', email: 'james.wilson@gmail.com', role: 'GUEST', status: 'Active', joined: '2025-06-12', lastLogin: '2026-03-22', bookings: 5 },
-  { id: 'USR-004', name: 'Sofia Martinez', email: 'sofia.m@outlook.com', role: 'GUEST', status: 'Active', joined: '2025-09-03', lastLogin: '2026-03-21', bookings: 3 },
-  { id: 'USR-005', name: 'Chen Wei', email: 'c.wei@email.com', role: 'GUEST', status: 'Active', joined: '2024-11-20', lastLogin: '2026-03-20', bookings: 8 },
-  { id: 'USR-006', name: 'Amara Okafor', email: 'amara.o@gmail.com', role: 'GUEST', status: 'Suspended', joined: '2025-01-14', lastLogin: '2026-02-15', bookings: 2 },
-  { id: 'USR-007', name: 'Luca Ferrari', email: 'luca.ferrari@email.it', role: 'GUEST', status: 'Active', joined: '2024-07-30', lastLogin: '2026-03-19', bookings: 12 },
-  { id: 'USR-008', name: 'Emma Thompson', email: 'emma.t@icloud.com', role: 'GUEST', status: 'Active', joined: '2025-12-01', lastLogin: '2026-03-18', bookings: 1 },
+  { id: 'USR-001', name: 'Luca Ferrari', email: 'luca.ferrari@pixelholiday.com', role: 'admin', status: 'Active', joined: '2024-01-15', lastLogin: '2 hours ago', avatar: 'LF' },
+  { id: 'USR-002', name: 'Sofia Marchetti', email: 'sofia.marchetti@pixelholiday.com', role: 'CEO', status: 'Active', joined: '2023-11-02', lastLogin: '1 day ago', avatar: 'SM' },
+  { id: 'USR-003', name: 'Marco Ricci', email: 'marco.ricci@pixelholiday.com', role: 'MANAGER', status: 'Active', joined: '2024-03-10', lastLogin: '3 hours ago', avatar: 'MR' },
+  { id: 'USR-004', name: 'Elena Conti', email: 'elena.conti@pixelholiday.com', role: 'staff', status: 'Active', joined: '2024-06-20', lastLogin: '5 hours ago', avatar: 'EC' },
+  { id: 'USR-005', name: 'Giuseppe Bianchi', email: 'giuseppe.bianchi@pixelholiday.com', role: 'staff', status: 'Inactive', joined: '2024-02-28', lastLogin: '14 days ago', avatar: 'GB' },
+  { id: 'USR-006', name: 'Valentina Esposito', email: 'valentina.esposito@pixelholiday.com', role: 'MANAGER', status: 'Active', joined: '2024-04-05', lastLogin: '1 hour ago', avatar: 'VE' },
+  { id: 'USR-007', name: 'Roberto Russo', email: 'roberto.russo@pixelholiday.com', role: 'staff', status: 'Pending', joined: '2024-12-01', lastLogin: 'Never', avatar: 'RR' },
+  { id: 'USR-008', name: 'Chiara Romano', email: 'chiara.romano@pixelholiday.com', role: 'staff', status: 'Active', joined: '2024-07-14', lastLogin: '2 days ago', avatar: 'CR' },
 ];
 
 const roleColors: Record<string, string> = {
-  CEO: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
-  MANAGER: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-  admin: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  GUEST: 'bg-gray-500/20 text-gray-400 border border-gray-500/30',
+  admin: 'bg-red-100 text-red-800',
+  CEO: 'bg-purple-100 text-purple-800',
+  MANAGER: 'bg-blue-100 text-blue-800',
+  staff: 'bg-gray-100 text-gray-700',
 };
 
 const statusColors: Record<string, string> = {
-  Active: 'bg-green-500/20 text-green-400 border border-green-500/30',
-  Suspended: 'bg-red-500/20 text-red-400 border border-red-500/30',
-  Pending: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
+  Active: 'bg-green-100 text-green-700',
+  Inactive: 'bg-gray-100 text-gray-500',
+  Pending: 'bg-yellow-100 text-yellow-700',
 };
 
 export default async function UsersPage() {
   const session = await auth();
   if (!session?.user) redirect('/login');
-  const userRole = (session.user as any)?.role;
-  if (!ADMIN_ROLES.includes(userRole)) redirect('/dashboard');
+  const userRole = (session.user as { role?: string }).role ?? '';
+  if (!ADMIN_ROLES.includes(userRole)) redirect('/admin');
 
-  const totalUsers = mockUsers.length;
-  const activeUsers = mockUsers.filter(u => u.status === 'Active').length;
-  const guestUsers = mockUsers.filter(u => u.role === 'GUEST').length;
-  const staffUsers = mockUsers.filter(u => u.role !== 'GUEST').length;
+  const activeCount = mockUsers.filter(u => u.status === 'Active').length;
+  const adminCount = mockUsers.filter(u => ADMIN_ROLES.includes(u.role)).length;
+  const pendingCount = mockUsers.filter(u => u.status === 'Pending').length;
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Users</h1>
-          <p className="text-gray-400 mt-1">Manage guests and staff accounts</p>
+          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage staff accounts and permissions</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
           + Invite User
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Users', value: totalUsers, sub: 'registered accounts' },
-          { label: 'Active', value: activeUsers, sub: 'currently active' },
-          { label: 'Guests', value: guestUsers, sub: 'traveler accounts' },
-          { label: 'Staff', value: staffUsers, sub: 'admin and managers' },
-        ].map((kpi) => (
-          <div key={kpi.label} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <p className="text-gray-400 text-sm">{kpi.label}</p>
-            <p className="text-3xl font-bold text-white mt-2">{kpi.value}</p>
-            <p className="text-gray-500 text-xs mt-1">{kpi.sub}</p>
+          { label: 'Total Users', value: mockUsers.length, color: 'text-blue-600' },
+          { label: 'Active', value: activeCount, color: 'text-green-600' },
+          { label: 'Admins & Managers', value: adminCount, color: 'text-purple-600' },
+          { label: 'Pending Invite', value: pendingCount, color: 'text-yellow-600' },
+        ].map(card => (
+          <div key={card.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">{card.label}</p>
+            <p className={`text-3xl font-bold mt-1 ${card.color}`}>{card.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-        <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-white font-semibold">All Users</h2>
-          <span className="text-gray-400 text-sm">{totalUsers} total</span>
+      {/* Users Table */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="font-semibold text-gray-800">All Users</h2>
+          <input
+            type="text"
+            placeholder="Search users..."
+            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+          />
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-700">
-                {['ID', 'Name', 'Email', 'Role', 'Status', 'Joined', 'Last Login', 'Bookings', 'Actions'].map(h => (
-                  <th key={h} className="text-left text-gray-400 text-xs font-medium uppercase tracking-wider px-6 py-3">{h}</th>
-                ))}
+            <thead className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+              <tr>
+                <th className="px-6 py-3 text-left">User</th>
+                <th className="px-6 py-3 text-left">Role</th>
+                <th className="px-6 py-3 text-left">Status</th>
+                <th className="px-6 py-3 text-left">Joined</th>
+                <th className="px-6 py-3 text-left">Last Login</th>
+                <th className="px-6 py-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
-              {mockUsers.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4 text-gray-400 text-sm font-mono">{u.id}</td>
-                  <td className="px-6 py-4 text-white text-sm font-medium">{u.name}</td>
-                  <td className="px-6 py-4 text-gray-300 text-sm">{u.email}</td>
+            <tbody className="divide-y divide-gray-100">
+              {mockUsers.map(user => (
+                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${roleColors[u.role]}`}>{u.role}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {user.avatar}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[u.status]}`}>{u.status}</span>
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${roleColors[user.role] ?? 'bg-gray-100 text-gray-700'}`}>
+                      {user.role}
+                    </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-400 text-sm">{u.joined}</td>
-                  <td className="px-6 py-4 text-gray-400 text-sm">{u.lastLogin}</td>
-                  <td className="px-6 py-4 text-gray-300 text-sm">{u.bookings}</td>
                   <td className="px-6 py-4">
-                    <button className="text-indigo-400 hover:text-indigo-300 text-sm">Edit</button>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[user.status] ?? 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'Active' ? 'bg-green-500' : user.status === 'Pending' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.joined}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{user.lastLogin}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <button className="text-xs text-blue-600 hover:text-blue-800 font-medium">Edit</button>
+                      <button className="text-xs text-red-500 hover:text-red-700 font-medium">Remove</button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="px-6 py-3 border-t border-gray-100 text-xs text-gray-500">
+          Showing {mockUsers.length} of {mockUsers.length} users
         </div>
       </div>
     </div>
