@@ -84,7 +84,7 @@ export default auth(async function middleware(req) {
 
   // ── 2. Guest gallery — run i18n middleware ────────────────────────────────────
   if (pathname.startsWith("/gallery")) {
-    return intlMiddleware(req as unknown as Parameters<typeof intlMiddleware>[0]);
+    return NextResponse.next();
   }
 
   // ── 3. Public paths — allow through ────────────────────────────────────────────
